@@ -6,6 +6,11 @@ primary_color = st.get_option("theme.primaryColor")
 secondary_color = st.get_option("theme.secondaryBackgroundColor")
 text_color = st.get_option("theme.textColor")
 
+st.set_page_config(
+    page_title="LOGYCA / OPERACIONES ANALITICA",
+    page_icon="assets/images/favicon.ico",  # Asegúrate de que la ruta sea correcta
+)
+
 # Mostrar el logo
 ui.show_logo()
 
@@ -22,3 +27,6 @@ if submit_button:
         # Redirigir a la página principal o mostrar los módulos
     else:
         st.error("Usuario o contraseña incorrectos")
+
+with open("assets/styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)

@@ -1,0 +1,5 @@
+.logo-caption { /* Clase para el texto debajo del logo */
+    font-size: 32px; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+    text-align: center; /* Centrado */
+}
