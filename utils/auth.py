@@ -1,17 +1,32 @@
 import streamlit as st
 import bcrypt
-import pyodbc
+import sqlite3
 
-# Configuración de la conexión a Azure SQL
-CONNECTION_STRING = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=your_server_name.database.windows.net;DATABASE=your_database_name;UID=your_username;PWD=your_password"
+from utils.permissions import get_modulos_permitidos
 
 def authenticate_user(username, password):
-    with pyodbc.connect(CONNECTION_STRING) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT password, rol FROM users WHERE username = ?", (username,))
-            row = cursor.fetchone()
+    with sqlite3.connect('users.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT password, rol_id FROM users WHERE username = ?", (username,))
+        row = cursor.fetchone()
 
-            if row and bcrypt.checkpw(password.encode(), row[0].encode()):
-                st.session_state["rol"] = row[1]  # Almacenar el rol en la sesión
-                return True
-    return False
+        if row is not None:
+            hashed_password, rol = row
+
+            # Verificar si la contraseña ya está hasheada
+            if hashed_password.startswith(b"$2b$") or hashed_password.startswith(b"$2y$"):
+                if bcrypt.checkpw(password.encode(), hashed_password):  # Ya está hasheada, verificar directamente
+                    modulos_permitidos = get_modulos_permitidos(rol)
+                    return {"rol_id": rol, "modulos": modulos_permitidos}
+            else:  # Contraseña no hasheada
+                new_hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+                
+                # Actualizar la contraseña en la base de datos
+                cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_hashed_password, username))
+                conn.commit()
+
+                modulos_permitidos = get_modulos_permitidos(rol)
+                return {"rol_id": rol, "modulos": modulos_permitidos}  # Retornamos los datos después de hashear
+
+    return None  # Retornamos None si la autenticación falla
+

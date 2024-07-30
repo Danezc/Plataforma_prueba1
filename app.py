@@ -1,32 +1,34 @@
 import streamlit as st
-from utils import auth, ui
+from pages import login, panel_ingreso
+from utils import ui, auth
 
-# Configuración de colores 
-primary_color = st.get_option("theme.primaryColor")
-secondary_color = st.get_option("theme.secondaryBackgroundColor")
-text_color = st.get_option("theme.textColor")
-
+# Configuración de la página
 st.set_page_config(
     page_title="LOGYCA / OPERACIONES ANALITICA",
-    page_icon="assets/images/favicon.ico",  # Asegúrate de que la ruta sea correcta
+    page_icon="assets/images/favicon.ico",
+    layout="wide",
 )
 
-# Mostrar el logo
-ui.show_logo()
+# Función para ocultar la barra lateral
+def hide_sidebar():
+    hide_streamlit_style = """
+        <style>
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        </style>
+    """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Formulario de inicio de sesión
-with st.form("login_form"):
-    username = st.text_input("Usuario")
-    password = st.text_input("Contraseña", type="password")
-    submit_button = st.form_submit_button("Iniciar Sesión")
+# Llamada a la función para ocultar la barra lateral
+hide_sidebar()
 
-# Lógica de verificación de credenciales (usando la función de auth.py)
-if submit_button:
-    if auth.authenticate_user(username, password):
-        st.success("Inicio de sesión exitoso")
-        # Redirigir a la página principal o mostrar los módulos
-    else:
-        st.error("Usuario o contraseña incorrectos")
-
-with open("assets/styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# Control de navegación
+if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
+    login.app()  # Mostrar página de login si no está autenticado
+elif st.session_state["current_page"] == "panel_ingreso":
+    panel_ingreso.app()  # Mostrar lista de módulos si está autenticado
+elif st.session_state["current_page"] in st.session_state.get("user_data", {}).get("modulos", []):
+    module_name = st.session_state["current_page"]
+    module = __import__(f"modules.{module_name}", fromlist=[""])
+    module.app()  # Mostrar el módulo correspondiente si está autenticado y tiene permiso
