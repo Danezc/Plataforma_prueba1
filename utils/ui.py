@@ -32,3 +32,47 @@ def show_logo():
         f"<h1 class='stCaption'>Plataforma de operaciones LOGYCA / ANALITICA</h1>",
         unsafe_allow_html=True
     )
+
+import streamlit as st
+from PIL import Image
+
+def logout_button():
+    if st.button("Cerrar sesión"):
+        for key in st.session_state.keys():
+            del st.session_state[key]
+        st.session_state["authenticated"] = False
+        st.rerun()
+
+def top_bar():
+    logo_path = "assets/images/LOGYCA_logo.png"  # Asegúrate de que la ruta sea correcta
+
+    # Cargar y redimensionar el logo (opcional)
+    with Image.open(logo_path) as logo:
+        logo = logo.resize((100, 50))  # Ajusta el tamaño según tus preferencias
+
+    st.markdown(
+        """
+        <style>
+        .top-bar {
+            background-color: #f0f0f0;
+            padding: 10px;
+            display: flex;
+            align-items: center;  /* Alinear verticalmente al centro */
+            height: 15vh; /* 15% de la altura de la ventana */
+        }
+
+        .logo-container {
+            margin-right: auto; /* Empujar el logo a la izquierda */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<div class="top-bar">', unsafe_allow_html=True)
+    st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+    st.image(logo)
+    st.markdown('</div>', unsafe_allow_html=True)  # Cerrar el contenedor del logo
+    logout_button()
+    st.markdown('</div>', unsafe_allow_html=True)  # Cerrar la barra superior
+

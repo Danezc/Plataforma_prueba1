@@ -1,32 +1,33 @@
-import streamlit as st
-import bcrypt
-import sqlite3
-
 from utils.permissions import get_modulos_permitidos
+
+import sqlite3
+import bcrypt
 
 def authenticate_user(username, password):
     with sqlite3.connect('users.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT password, rol_id FROM users WHERE username = ?", (username,))
+        cursor.execute("SELECT password, rol_id, nombre FROM users WHERE username = ?", (username,))
         row = cursor.fetchone()
 
         if row is not None:
-            hashed_password, rol = row
+            stored_password, rol_id, nombre = row 
+            password_bytes = password.encode()
 
-            # Verificar si la contraseña ya está hasheada
-            if hashed_password.startswith(b"$2b$") or hashed_password.startswith(b"$2y$"):
-                if bcrypt.checkpw(password.encode(), hashed_password):  # Ya está hasheada, verificar directamente
-                    modulos_permitidos = get_modulos_permitidos(rol)
-                    return {"rol_id": rol, "modulos": modulos_permitidos}
-            else:  # Contraseña no hasheada
+            try:  
+                if bcrypt.checkpw(password_bytes, stored_password):  # Quita .encode() aquí
+                    modulos_permitidos = get_modulos_permitidos(rol_id)
+                    return {"rol_id": rol_id, "modulos": modulos_permitidos, "nombre": nombre}
+            except ValueError:  
                 new_hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-                
-                # Actualizar la contraseña en la base de datos
+                # Actualizar la contraseña en la base de datos (opcional, pero recomendado)
                 cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_hashed_password, username))
                 conn.commit()
+                # Ahora, intenta verificar de nuevo
+                if bcrypt.checkpw(password.encode(), new_hashed_password):
+                    modulos_permitidos = get_modulos_permitidos(rol_id)
+                    return {"rol_id": rol_id, "modulos": modulos_permitidos, "nombre": nombre}
+        return None  # Usuario no encontrado o contraseña incorrecta
 
-                modulos_permitidos = get_modulos_permitidos(rol)
-                return {"rol_id": rol, "modulos": modulos_permitidos}  # Retornamos los datos después de hashear
 
-    return None  # Retornamos None si la autenticación falla
+
 

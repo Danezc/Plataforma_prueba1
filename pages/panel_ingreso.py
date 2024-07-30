@@ -1,8 +1,10 @@
 import streamlit as st
+from utils import ui
 
 def app():
     if "user_data" in st.session_state:
-        st.title(f"Bienvenido, {st.session_state['user_data']['rol']}")
+        ui.top_bar()  # Mostrar la barra superior
+        st.title(f"Bienvenido, {st.session_state['user_data']['nombre']}")
 
         # Mostrar los módulos permitidos como botones
         for modulo in st.session_state["user_data"]["modulos"]:
