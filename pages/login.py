@@ -4,6 +4,7 @@ import config
 
 def app():
     # Mostrar el logo
+    ui.hide_sidebar()
     ui.show_logo()
 
     # Formulario de inicio de sesión

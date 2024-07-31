@@ -1,15 +1,15 @@
 import streamlit as st
-from utils import ui
+from utils import  sidebar
+
 
 def app():
     if "user_data" in st.session_state:
-        ui.top_bar()  # Mostrar la barra superior
+        # Llamada a la función para ocultar la barra lateral
+        sidebar.sidebar()
+        st.markdown('<div style="margin-top: 15vh;">', unsafe_allow_html=True)
         st.title(f"Bienvenido, {st.session_state['user_data']['nombre']}")
 
-        # Mostrar los módulos permitidos como botones
-        for modulo in st.session_state["user_data"]["modulos"]:
-            if st.button(modulo):
-                st.session_state["current_page"] = modulo
-                st.rerun()  # Recargar la página para mostrar el módulo seleccionado
+
+        st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.warning("No has iniciado sesión.")

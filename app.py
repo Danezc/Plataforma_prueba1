@@ -1,6 +1,6 @@
 import streamlit as st
 from pages import login, panel_ingreso
-from utils import ui, auth
+
 
 # Configuración de la página
 st.set_page_config(
@@ -8,20 +8,6 @@ st.set_page_config(
     page_icon="assets/images/favicon.ico",
     layout="wide",
 )
-
-# Función para ocultar la barra lateral
-def hide_sidebar():
-    hide_streamlit_style = """
-        <style>
-        [data-testid="stSidebar"] {
-            display: none;
-        }
-        </style>
-    """
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# Llamada a la función para ocultar la barra lateral
-hide_sidebar()
 
 # Control de navegación
 if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
