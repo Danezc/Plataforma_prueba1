@@ -1,6 +1,9 @@
 import streamlit as st
 from PIL import Image
-import inspect  # Para inspeccionar funciones
+from utils.normalice import normalize_module_name
+import os
+
+
 
 
 def logout_button():
@@ -28,25 +31,31 @@ def sidebar():
     st.sidebar.image(logo)
     st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 
-    # Mostrar las páginas permitidas como botones
     if "user_data" in st.session_state:
         for pagina in st.session_state["user_data"]["modulos"]:
-            if st.sidebar.button(pagina):
-                try:
-                    # Importación dinámica de la página
-                    page_name = pagina.lower().replace(" ", "_")
-                    module = __import__(f"pages.{page_name}", fromlist=[""])
+            # Normalizar el nombre de la página para que coincida con el archivo
+            page_name = normalize_module_name(pagina) + ".py" 
 
-                    # Buscar la función app dentro de la página
-                    for name, obj in inspect.getmembers(module):
-                        if inspect.isfunction(obj) and name == "app":
-                            obj()  # Ejecutar la función app
-                            break
-                    else:
-                        st.error(f"No se encontró la función 'app' en la página '{pagina}'.")
+            # Construir la ruta completa al archivo de la página
+            page_path = os.path.join("pages", page_name)
 
-                except ModuleNotFoundError:
-                    st.error(f"La página '{pagina}' no fue encontrada.")
+            if os.path.exists(page_path):  # Verificar si el archivo existe
+                if st.sidebar.button(pagina):  # Simplificar el condicional del botón
+                    try:
+                        module = __import__(f"pages.{normalize_module_name(pagina)}", fromlist=[""])
+                        app_function = getattr(module, "app", None)  # Obtener la función app si existe
+
+                        if app_function:
+                            app_function()
+                            st.session_state["current_page"] = normalize_module_name(pagina)
+                            st.rerun()
+                        else:
+                            st.error(f"No se encontró la función 'app' en la página '{pagina}'.")
+                    except ModuleNotFoundError:
+                        st.error(f"Error al importar la página '{pagina}'.")
+            else:
+                st.warning(f"La página '{pagina}' no fue encontrada en la carpeta 'pages'.")
+
 
     st.markdown("</div>", unsafe_allow_html=True)
     logout_button()
@@ -60,3 +69,4 @@ def sidebar():
         </style>
     """
     st.markdown(hide_sidebar_nav, unsafe_allow_html=True)
+

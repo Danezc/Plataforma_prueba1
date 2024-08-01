@@ -1,5 +1,6 @@
 import streamlit as st
 from pages.login import login_app
+from utils.normalice import normalize_module_name
 import re
 
 # Configuración de la página
@@ -14,16 +15,6 @@ def navigate_to(page_name):
     st.session_state["current_page"] = page_name
     st.rerun()
 
-# Función para convertir el nombre del módulo a un nombre de archivo válido
-def normalize_module_name(module_name):
-    # Convertir a minúsculas
-    module_name = module_name.lower()
-    # Eliminar tildes y caracteres especiales
-    module_name = re.sub(r'[^\w\s]', '', module_name)
-    # Reemplazar espacios por guiones bajos
-    module_name = module_name.replace(' ', '_')
-    return module_name
-
 # Control de navegación
 if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
     login_app()  # Mostrar página de login si no está autenticado
@@ -31,7 +22,6 @@ else:
     # Inicializar estado de la sesión
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = "panel_ingreso"
-
     # Obtener la página actual
     current_page = st.session_state["current_page"]
 
@@ -51,12 +41,12 @@ else:
         # Importación dinámica del módulo
         try:
             page = __import__(f"pages.{normalized_current_page}", fromlist=[""])
-            print(f"Buscando la página en: pages/{normalized_current_page}")  # Imprime la ruta
+            print(f"Buscando la página en app: pages/{normalized_current_page}")  # Imprime la ruta
         except ImportError as e:
+            print(f"Error al cargar el módulo {normalized_current_page}: {e}")
             st.error(f"Error al cargar el módulo '{current_page}': {e}")
             st.session_state["current_page"] = "panel_ingreso"
             st.rerun()
-
         # Mostrar la página correspondiente
         with st.container():
             page.app()
