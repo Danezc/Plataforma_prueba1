@@ -22,6 +22,7 @@ def login_app():
             else:
                 st.session_state["user_data"] = user_data
                 st.session_state["authenticated"] = True  # Marcamos como autenticado
+                st.session_state["username"] = username  # Almacenar el nombre de usuario en st.session_state
                 st.session_state["current_page"] = "panel_ingreso"  # Redirección directa
                 st.rerun()  # Recargamos la página para aplicar los cambios
         else:
