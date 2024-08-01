@@ -1,8 +1,7 @@
 import streamlit as st
 from utils import auth, ui
-import config
 
-def app():
+def login_app():
     # Mostrar el logo
     ui.hide_sidebar()
     ui.show_logo()
@@ -17,9 +16,13 @@ def app():
     if submit_button:
         user_data = auth.authenticate_user(username, password)
         if user_data:
-            st.session_state["user_data"] = user_data
-            st.session_state["authenticated"] = True  # Marcamos como autenticado
-            st.session_state["current_page"] = "panel_ingreso"  # Redirección directa
-            st.rerun()  # Recargamos la página para aplicar los cambios
+            # Verifica que user_data tenga la estructura esperada
+            if "modulos" not in user_data:
+                st.error("El usuario no tiene módulos asignados.")
+            else:
+                st.session_state["user_data"] = user_data
+                st.session_state["authenticated"] = True  # Marcamos como autenticado
+                st.session_state["current_page"] = "panel_ingreso"  # Redirección directa
+                st.rerun()  # Recargamos la página para aplicar los cambios
         else:
             st.error("Credenciales incorrectas")
