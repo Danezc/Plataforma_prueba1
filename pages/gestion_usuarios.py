@@ -2,9 +2,14 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 
+from utils import sidebar
+
 
 def app():
     st.title("Gestión de Usuarios")
+
+    sidebar.sidebar("gestion_usuarios")
+
 
     # Conexión a la base de datos (ajusta la ruta si es necesario)
     conn = sqlite3.connect('users.db')  
