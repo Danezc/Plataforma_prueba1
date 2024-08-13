@@ -6,8 +6,33 @@ from utils import sidebar
 
 
 def app():
-    """Función para cambiar la contraseña de un usuario."""
 
+    """
+    Función para cambiar la contraseña de un usuario autenticado.
+
+    Esta función permite a un usuario cambiar su contraseña actual por una nueva.
+    Verifica la contraseña actual, valida la nueva contraseña y la actualiza en la base de datos.
+
+    Pasos:
+
+    1. **Obtener el nombre de usuario:** Obtiene el nombre de usuario del usuario autenticado
+       almacenado en la sesión de Streamlit.
+    2. **Mostrar formulario:** Presenta un formulario con campos para ingresar la contraseña actual,
+       la nueva contraseña y la confirmación de la nueva contraseña.
+    3. **Validar contraseña actual:** Verifica si la contraseña actual ingresada coincide con la
+       contraseña almacenada en la base de datos.
+    4. **Validar nueva contraseña:** Verifica si la nueva contraseña cumple con los requisitos de
+       seguridad (al menos 8 caracteres, una minúscula, una mayúscula y un número).
+    5. **Validar confirmación:** Verifica si la nueva contraseña y la confirmación coinciden.
+    6. **Actualizar contraseña:** Si todas las validaciones son exitosas, actualiza la contraseña
+       en la base de datos utilizando bcrypt.hashpw para generar un nuevo hash de la contraseña.
+    7. **Mostrar mensajes:** Muestra mensajes de éxito o error al usuario según el resultado de
+       la operación.
+
+    Returns:
+        bool: True si la contraseña se cambió correctamente, False en caso contrario.
+    """
+    
     st.subheader("Cambiar Contraseña")
     sidebar.sidebar("cambiar_contrasena")
 

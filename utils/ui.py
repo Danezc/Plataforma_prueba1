@@ -2,11 +2,11 @@ import streamlit as st
 from PIL import Image
 
 def show_logo():
-    logo_path = "assets/images/LOGYCA_logo.png"  # Asegúrate de que la ruta sea correcta
+    logo_path = "assets/images/LOGYCA_logo.png" 
     
     # Cargar y redimensionar el logo
     with Image.open(logo_path) as logo:
-        logo = logo.resize((1500, 400))  # Ajusta el tamaño segúns tus preferencias
+        logo = logo.resize((1550, 400))  # Ajusta el tamaño segúns tus preferencias
     
     # Mostrar el logo centrado
     col1, col2, col3 = st.columns([1, 2, 1])  # Tres columnas para centrar
