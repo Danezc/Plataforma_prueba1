@@ -23,26 +23,30 @@ def gestionar_boton_pagina(pagina, contexto):
     if os.path.exists(page_path):
         clave_unica = generar_clave_unica(page_name_normalized, contexto)  
 
-        # Verifica si la página actual coincide con la página del botón
         current_page = st.session_state.get("current_page", None)
         is_current_page = current_page == page_name_normalized
 
-        # Estilos condicionales para el botón
         button_style = f"""
+            display: block; 
+            width: 100%;   
             background-color: {'#00B398' if is_current_page else 'inherit'};
             color: {'white' if is_current_page else 'inherit'};
             pointer-events: {'none' if is_current_page else 'auto'};
             cursor: {'default' if is_current_page else 'pointer'};
-            border: none;  /* Elimina el borde predeterminado del botón */
-            padding: 10px 20px; /* Ajusta el padding para que se vea como un botón */
+            border: none;
+            border-bottom: 1px solid #ddd; 
+            padding: 10px 0; 
             text-align: center;
             text-decoration: none;
-            display: inline-block;
             font-size: 16px;
         """
 
-        # Aplica estilos al botón dentro de un span
         with st.sidebar: 
+            # Se aplica el estilo al botón
+            st.markdown(
+                f'<style>button[data-baseweb="button"] {{ {button_style} }}</style>',
+                unsafe_allow_html=True,
+            )
             if st.button(pagina, key=clave_unica, disabled=is_current_page):
                 try:
                     module = __import__(f"pages.{page_name_normalized}", fromlist=[""])
@@ -50,12 +54,11 @@ def gestionar_boton_pagina(pagina, contexto):
                     if app_function:
                         app_function()
                         st.session_state["current_page"] = page_name_normalized
-                        st.rerun()  # Usa experimental_rerun para mayor fiabilidad
+                        st.rerun()  
                     else:
                         st.error(f"No se encontró la función 'app' en la página '{pagina}'.")
                 except ModuleNotFoundError:
                     st.error(f"Error al importar la página '{pagina}'.")
-
     else:
         st.warning(f"La página '{pagina}' no fue encontrada en la carpeta 'pages'.")
 
